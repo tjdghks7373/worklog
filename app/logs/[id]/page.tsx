@@ -3,9 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import styled from 'styled-components';
-import { getWorkLogById } from '@/lib/worklogStorage';
+import Image from 'next/image';
+import { UploadButton } from '@uploadthing/react';
+import type { OurFileRouter } from '@/lib/uploadthing';
+import {
+  getWorkLogById,
+  updateWorkLog,
+  deleteWorkLog,
+} from '@/lib/worklogStorage';
 import { WorkLog } from '@/types/worklog';
-import { updateWorkLog, deleteWorkLog } from '@/lib/worklogStorage';
 
 const Wrapper = styled.main`
   padding: 40px;
@@ -31,6 +37,12 @@ const Content = styled.div`
   white-space: pre-wrap;
 `;
 
+const ImageBox = styled.div`
+  margin: 24px 0;
+  border-radius: 12px;
+  overflow: hidden;
+`;
+
 const ButtonRow = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -38,35 +50,27 @@ const ButtonRow = styled.div`
   margin-top: 32px;
 `;
 
-const TextArea = styled.textarea`
-  display: block;
+const Input = styled.input`
   width: 100%;
-  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  margin-bottom: 12px;
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
   resize: vertical;
-  min-height: 120px;
-
-  &:focus {
-    outline: none;
-    border-color: #111;
-  }
+  min-height: 140px;
 `;
 
-const Input = styled.input`
-  display: block;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-
-  &:focus {
-    outline: none;
-    border-color: #111;
-  }
+const UploadArea = styled.div`
+  margin-top: 16px;
 `;
 
 const Button = styled.button<{ $danger?: boolean }>`
@@ -85,10 +89,12 @@ const Button = styled.button<{ $danger?: boolean }>`
 export default function LogDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+
   const [log, setLog] = useState<WorkLog | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -102,6 +108,7 @@ export default function LogDetailPage() {
     setLog(found);
     setTitle(found.title);
     setContent(found.content);
+    setImageUrl(found.imageUrl ?? null);
   }, [id, router]);
 
   const handleUpdate = () => {
@@ -111,16 +118,16 @@ export default function LogDetailPage() {
       ...log,
       title,
       content,
+      imageUrl,
     });
 
+    setIsEditing(false);
     router.push('/logs');
   };
 
   const handleDelete = () => {
     if (!log) return;
-
-    const ok = confirm('정말 삭제할까요?');
-    if (!ok) return;
+    if (!confirm('정말 삭제할까요?')) return;
 
     deleteWorkLog(log.id);
     router.push('/logs');
@@ -134,6 +141,19 @@ export default function LogDetailPage() {
         <>
           <Title>{log.title}</Title>
           <DateText>{log.date}</DateText>
+
+          {log.imageUrl && (
+            <ImageBox>
+              <Image
+                src={log.imageUrl}
+                alt="log image"
+                width={800}
+                height={450}
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </ImageBox>
+          )}
+
           <Content>{log.content}</Content>
 
           <ButtonRow>
@@ -151,6 +171,31 @@ export default function LogDetailPage() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
+
+          {imageUrl && (
+            <ImageBox>
+              <Image
+                src={imageUrl}
+                alt="preview"
+                width={800}
+                height={450}
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </ImageBox>
+          )}
+
+          <UploadArea>
+            <UploadButton<OurFileRouter, 'imageUploader'>
+              endpoint="imageUploader"
+              onClientUploadComplete={(res) => {
+                if (!res?.[0]) return;
+                setImageUrl(res[0].url);
+              }}
+              onUploadError={(error) => {
+                alert(error.message);
+              }}
+            />
+          </UploadArea>
 
           <ButtonRow>
             <Button onClick={handleUpdate}>Save</Button>

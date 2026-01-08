@@ -4,4 +4,5 @@ export interface WorkLog {
   title: string;
   content: string;
   createdAt: string;
+  imageUrl?: string | null;
 }

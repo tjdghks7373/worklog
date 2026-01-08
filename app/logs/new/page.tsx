@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { useRouter } from 'next/navigation';
 import { saveWorkLog } from '@/lib/worklogStorage';
 import { v4 as uuid } from 'uuid';
+import { UploadButton } from '@uploadthing/react';
+import type { OurFileRouter } from '@/lib/uploadthing';
 
 const Wrapper = styled.main`
   padding: 40px;
@@ -41,11 +43,6 @@ const Input = styled.input`
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
-
-  &:focus {
-    outline: none;
-    border-color: #111;
-  }
 `;
 
 const TextArea = styled.textarea`
@@ -53,13 +50,13 @@ const TextArea = styled.textarea`
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
-  resize: vertical;
   min-height: 120px;
+`;
 
-  &:focus {
-    outline: none;
-    border-color: #111;
-  }
+const ImagePreview = styled.img`
+  margin-top: 10px;
+  max-width: 100%;
+  border-radius: 12px;
 `;
 
 const ButtonRow = styled.div`
@@ -84,9 +81,33 @@ const Button = styled.button<{ $variant?: 'primary' | 'ghost' }>`
         background: transparent;
         color: #555;
       `}
+`;
+
+const UploadBox = styled.div`
+  border: 1px dashed #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const UploadHint = styled.p`
+  font-size: 13px;
+  color: #777;
+`;
+
+const ChangeImageButton = styled.button`
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #eee;
+  cursor: pointer;
 
   &:hover {
-    opacity: 0.85;
+    background: #e0e0e0;
   }
 `;
 
@@ -94,6 +115,7 @@ export default function NewLogPage() {
   const [date, setDate] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -104,6 +126,7 @@ export default function NewLogPage() {
       date,
       title,
       content,
+      imageUrl,
       createdAt: new Date().toISOString(),
     });
 
@@ -113,6 +136,7 @@ export default function NewLogPage() {
   return (
     <Wrapper>
       <Title>New Work Log</Title>
+
       <Form onSubmit={handleSubmit}>
         <Field>
           <Label>Date</Label>
@@ -123,6 +147,7 @@ export default function NewLogPage() {
             required
           />
         </Field>
+
         <Field>
           <Label>Title</Label>
           <Input
@@ -132,6 +157,7 @@ export default function NewLogPage() {
             required
           />
         </Field>
+
         <Field>
           <Label>Content</Label>
           <TextArea
@@ -140,6 +166,41 @@ export default function NewLogPage() {
             onChange={(e) => setContent(e.target.value)}
           />
         </Field>
+
+        <Field>
+          <Label>Image</Label>
+          <UploadBox>
+            {!imageUrl && (
+              <>
+                <UploadButton<OurFileRouter, 'imageUploader'>
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res) => {
+                    if (res?.[0]?.url) {
+                      setImageUrl(res[0].url);
+                    }
+                  }}
+                  onUploadError={(error) => {
+                    alert(error.message);
+                  }}
+                />
+                <UploadHint>PNG, JPG 이미지 1장 업로드 가능</UploadHint>
+              </>
+            )}
+
+            {imageUrl && (
+              <>
+                <ImagePreview src={imageUrl} alt="preview" />
+                <ChangeImageButton
+                  type="button"
+                  onClick={() => setImageUrl(null)}
+                >
+                  이미지 변경
+                </ChangeImageButton>
+              </>
+            )}
+          </UploadBox>
+        </Field>
+
         <ButtonRow>
           <Button type="button" $variant="ghost" onClick={() => router.back()}>
             Cancel

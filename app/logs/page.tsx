@@ -3,6 +3,7 @@
 import styled from 'styled-components';
 import Link from 'next/link';
 import { useEffect, useState, startTransition } from 'react';
+import { useSession } from 'next-auth/react';
 import { getWorkLogs } from '@/lib/worklogStorage';
 import { WorkLog } from '@/types/worklog';
 import { useRouter } from 'next/navigation';
@@ -76,13 +77,19 @@ const Content = styled.p`
 export default function LogsPage() {
   const [logs, setLogs] = useState<WorkLog[]>([]);
   const router = useRouter();
+  const { status } = useSession();
 
   useEffect(() => {
     const storedLogs = getWorkLogs();
     if (storedLogs.length) {
       startTransition(() => setLogs(storedLogs));
     }
-  }, []);
+    if (status === 'unauthenticated') {
+      router.replace('/login');
+    }
+  }, [status, router]);
+
+  if (status !== 'authenticated') return null;
 
   return (
     <PageWrapper>

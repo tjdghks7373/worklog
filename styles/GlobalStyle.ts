@@ -3,50 +3,46 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
-  *,
-  *::before,
-  *::after {
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
+
+  *, *::before, *::after {
     box-sizing: border-box;
-  }
-
-  html,
-  body {
-    padding: 0;
     margin: 0;
-    width: 100%;
-    height: 100%;
+    padding: 0;
   }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
-      Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
-      'Helvetica Neue', sans-serif;
-    font-size: 14px;
-    line-height: 1.4;
+  html, body {
+    height: 100%;
+    font-family: 'PretendardVariable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     background: #fafafa;
     color: #111;
   }
 
-  h1, h2, h3, h4, h5, h6,
-  p, ul, ol, li {
-    margin: 0;
-    padding: 0;
-  }
-
-  ul, ol {
-    list-style: none;
+  a {
+    text-decoration: none;
+    color: inherit;
   }
 
   button {
     font-family: inherit;
-    border: none;
-    background: none;
+    cursor: pointer;
   }
 
-  a {
-    color: inherit;
-    text-decoration: none;
+  input, textarea {
+    font-family: inherit;
   }
+
+  /* ul, li 초기화 */
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    margin: 0;
+    padding: 0;
+  }  
 `;
 
 export default GlobalStyle;
