@@ -127,6 +127,10 @@ export default function NewLogPage() {
       content,
       imageUrl,
       createdAt: new Date(),
+      updatedAt: new Date(),
+      tags: [],
+      status: 'draft',
+      userId: '',
     });
 
     router.push('/logs');
