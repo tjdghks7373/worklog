@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// 1. Next.js 16 규격에 맞는 타입 정의
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
+// GET: 상세 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext // 'props' 대신 'context'라는 이름을 관례적으로 사용합니다.
 ) {
   try {
-    const { id } = params;
-    const worklog = await prisma.worklog.findUnique({
+    const { id } = await context.params; // 반드시 await
+
+    const worklog = await prisma.workLog.findUnique({
       where: { id },
       include: { user: true },
     });
@@ -18,52 +25,7 @@ export async function GET(
 
     return NextResponse.json(worklog);
   } catch (error) {
-    console.error('Error fetching worklog:', error);
-    return NextResponse.json({ error: 'Failed to fetch worklog' }, { status: 500 });
-  }
-}
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = params;
-    const body = await request.json();
-    const { title, content, imageUrl, tags, status } = body;
-
-    const worklog = await prisma.worklog.update({
-      where: { id },
-      data: {
-        ...(title && { title }),
-        ...(content !== undefined && { content }),
-        ...(imageUrl !== undefined && { imageUrl }),
-        ...(tags && { tags }),
-        ...(status && { status }),
-      },
-      include: { user: true },
-    });
-
-    return NextResponse.json(worklog);
-  } catch (error) {
-    console.error('Error updating worklog:', error);
-    return NextResponse.json({ error: 'Failed to update worklog' }, { status: 500 });
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = params;
-    await prisma.worklog.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ message: 'Worklog deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting worklog:', error);
-    return NextResponse.json({ error: 'Failed to delete worklog' }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
   }
 }
