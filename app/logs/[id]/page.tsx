@@ -107,7 +107,7 @@ export default function LogDetailPage() {
 
     setLog(found);
     setTitle(found.title);
-    setContent(found.content);
+    setContent(found.content ?? '');
     setImageUrl(found.imageUrl ?? null);
   }, [id, router]);
 
