@@ -140,7 +140,7 @@ export default function LogDetailPage() {
       {!isEditing ? (
         <>
           <Title>{log.title}</Title>
-          <DateText>{new Date(log.createdAt).toLocaleDateString()}</DateText>
+          <DateText>{log.createdAt.toString()}</DateText>
 
           {log.imageUrl && (
             <ImageBox>

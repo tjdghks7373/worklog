@@ -123,11 +123,10 @@ export default function NewLogPage() {
 
     saveWorkLog({
       id: uuid(),
-      date,
       title,
       content,
       imageUrl,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(),
     });
 
     router.push('/logs');
