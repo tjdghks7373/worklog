@@ -104,7 +104,7 @@ export default function LogsPage() {
         {logs.map((log) => (
           <Link key={log.id} href={`/logs/${log.id}`}>
             <Card>
-              <DateText>{log.date}</DateText>
+              <DateText>{log.createdAt.toString()}</DateText>
               <CardTitle>{log.title}</CardTitle>
               <Content>{log.content}</Content>
             </Card>
