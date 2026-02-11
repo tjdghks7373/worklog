@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, props: Props) {
     // 2. params를 await로 기다려야 합니다.
     const { id } = await props.params;
 
-    const worklog = await prisma.worklog.findUnique({
+    const worklog = await prisma.workLog.findUnique({
       where: { id },
       include: { user: true },
     });
