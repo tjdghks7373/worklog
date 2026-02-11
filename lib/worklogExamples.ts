@@ -8,7 +8,7 @@ export async function createWorklogExample() {
   const session = await getSession();
   if (!session?.user?.id) throw new Error('User not authenticated');
 
-  const worklog = await prisma.worklog.create({
+  const worklog = await prisma.workLog.create({
     data: {
       title: '오늘의 작업',
       content: '작업 내용 설명',
@@ -26,7 +26,7 @@ export async function createWorklogExample() {
  * 모든 워크로그 조회 예제
  */
 export async function getAllWorklogs() {
-  const worklogs = await prisma.worklog.findMany({
+  const worklogs = await prisma.workLog.findMany({
     include: { user: true },
     orderBy: { createdAt: 'desc' },
   });
@@ -38,7 +38,7 @@ export async function getAllWorklogs() {
  * 특정 사용자의 워크로그 조회 예제
  */
 export async function getUserWorklogs(userId: string) {
-  const worklogs = await prisma.worklog.findMany({
+  const worklogs = await prisma.workLog.findMany({
     where: { userId },
     include: { user: true },
     orderBy: { createdAt: 'desc' },
@@ -51,7 +51,7 @@ export async function getUserWorklogs(userId: string) {
  * 워크로그 업데이트 예제
  */
 export async function updateWorklogExample(id: string) {
-  const worklog = await prisma.worklog.update({
+  const worklog = await prisma.workLog.update({
     where: { id },
     data: {
       title: '수정된 제목',
@@ -67,7 +67,7 @@ export async function updateWorklogExample(id: string) {
  * 워크로그 삭제 예제
  */
 export async function deleteWorklogExample(id: string) {
-  await prisma.worklog.delete({
+  await prisma.workLog.delete({
     where: { id },
   });
 }
@@ -79,15 +79,12 @@ export const WorklogComponentExample = () => {
   // 'use client' directive를 파일 맨 위에 추가
   // import { useEffect, useState } from 'react';
   // import type { WorkLog } from '@/types/worklog';
-
   // const [worklogs, setWorklogs] = useState<WorkLog[]>([]);
-
   // useEffect(() => {
   //   fetch('/api/worklog')
   //     .then(res => res.json())
   //     .then(data => setWorklogs(data));
   // }, []);
-
   // return (
   //   <div>
   //     {worklogs.map(log => (

@@ -38,16 +38,19 @@ types/
 ## 🚀 빠른 시작
 
 ### 1️⃣ 개발 서버 시작
+
 ```bash
 npm run dev
 ```
 
 ### 2️⃣ Prisma Studio 열기 (GUI 데이터베이스 관리)
+
 ```bash
 npm run prisma:studio
 ```
 
 ### 3️⃣ 새 마이그레이션 생성
+
 ```bash
 npm run prisma:migrate
 ```
@@ -55,6 +58,7 @@ npm run prisma:migrate
 ## 💾 데이터베이스 스키마
 
 ### User (사용자)
+
 ```typescript
 {
   id: string (기본 키)
@@ -67,6 +71,7 @@ npm run prisma:migrate
 ```
 
 ### Worklog (작업 로그)
+
 ```typescript
 {
   id: string (기본 키)
@@ -88,17 +93,18 @@ npm run prisma:migrate
 
 ### Worklog API
 
-| 메소드 | 엔드포인트 | 설명 |
-|--------|-----------|------|
-| GET | `/api/worklog` | 모든 워크로그 조회 |
-| POST | `/api/worklog` | 새 워크로그 생성 |
-| GET | `/api/worklog/[id]` | 특정 워크로그 조회 |
-| PUT | `/api/worklog/[id]` | 워크로그 수정 |
-| DELETE | `/api/worklog/[id]` | 워크로그 삭제 |
+| 메소드 | 엔드포인트          | 설명               |
+| ------ | ------------------- | ------------------ |
+| GET    | `/api/worklog`      | 모든 워크로그 조회 |
+| POST   | `/api/worklog`      | 새 워크로그 생성   |
+| GET    | `/api/worklog/[id]` | 특정 워크로그 조회 |
+| PUT    | `/api/worklog/[id]` | 워크로그 수정      |
+| DELETE | `/api/worklog/[id]` | 워크로그 삭제      |
 
 ## 💻 코드 예제
 
 ### 1. 워크로그 생성
+
 ```typescript
 // Server Action 또는 API 클라이언트에서
 const response = await fetch('/api/worklog', {
@@ -109,23 +115,25 @@ const response = await fetch('/api/worklog', {
     content: '작업 설명',
     userId: session.user.id,
     tags: ['개발', '버그수정'],
-    status: 'draft'
-  })
+    status: 'draft',
+  }),
 });
 ```
 
 ### 2. 사용자의 워크로그 조회
+
 ```typescript
 import { prisma } from '@/lib/prisma';
 
-const worklogs = await prisma.worklog.findMany({
+const worklogs = await prisma.workLog.findMany({
   where: { userId: 'user-id' },
   include: { user: true },
-  orderBy: { createdAt: 'desc' }
+  orderBy: { createdAt: 'desc' },
 });
 ```
 
 ### 3. React 컴포넌트에서 사용
+
 ```typescript
 'use client';
 import { useEffect, useState } from 'react';
@@ -155,18 +163,19 @@ export function WorklogList() {
 ```
 
 ### 4. NextAuth 세션에서 사용자 정보
+
 ```typescript
 import { getSession } from 'next-auth/react';
 
 export async function SomeComponent() {
   const session = await getSession();
-  
+
   if (!session?.user?.id) {
     return <p>로그인이 필요합니다.</p>;
   }
 
   // session.user.id가 자동으로 Prisma User와 연동됨
-  const userWorklogs = await prisma.worklog.findMany({
+  const userWorklogs = await prisma.workLog.findMany({
     where: { userId: session.user.id }
   });
 
@@ -184,6 +193,7 @@ export async function SomeComponent() {
 ## 🧪 테스트 방법
 
 ### 1. API 직접 테스트
+
 ```bash
 # 모든 워크로그 조회
 curl http://localhost:3000/api/worklog
@@ -199,6 +209,7 @@ curl -X POST http://localhost:3000/api/worklog \
 ```
 
 ### 2. Prisma Studio에서 테스트
+
 ```bash
 npm run prisma:studio
 # http://5555 포트에서 GUI 열림
@@ -239,16 +250,19 @@ npm run prisma:studio
 ## 🆘 문제 해결
 
 ### Prisma Client 에러
+
 ```bash
 npm run prisma:generate
 ```
 
 ### 데이터베이스 연결 실패
+
 1. `.env`에서 DATABASE_URL 확인
 2. Supabase에서 DB 연결 상태 확인
 3. 방화벽/네트워크 확인
 
 ### 타입 에러
+
 ```bash
 npm run build
 ```
