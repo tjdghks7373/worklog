@@ -1,58 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// 1. Params 타입을 Promise로 정의합니다.
-type Props = {
-  params: Promise<{ id: string }>;
-};
-
-// GET: 상세 조회
-export async function GET(request: NextRequest, props: Props) {
+// ❌ 기존: export async function GET(request: NextRequest, props: Props)
+// ✅ 수정: 두 번째 인자를 아예 삭제합니다.
+export async function GET(request: NextRequest) {
   try {
-    // 2. params를 await로 기다려야 합니다.
-    const { id } = await props.params;
-
-    const worklog = await prisma.workLog.findUnique({
-      where: { id },
-      include: { user: true },
+    const worklogs = await prisma.workLog.findMany({ // L 대문자 확인
+      include: {
+        user: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
+    return NextResponse.json(worklogs);
+  } catch (error) {
+    console.error('Error fetching worklogs:', error);
+    return NextResponse.json({ error: 'Failed to fetch worklogs' }, { status: 500 });
+  }
+}
 
-    if (!worklog) {
-      return NextResponse.json({ error: 'Worklog not found' }, { status: 404 });
+// POST도 마찬가지로 request만 받습니다.
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { title, content, userId, imageUrl, tags, status } = body;
+
+    if (!title || !userId) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    return NextResponse.json(worklog);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
-  }
-}
-
-// PATCH: 수정
-export async function PATCH(request: NextRequest, props: Props) {
-  try {
-    const { id } = await props.params;
-    const body = await request.json();
-
-    const updated = await prisma.workLog.update({
-      where: { id },
-      data: body,
+    const worklog = await prisma.workLog.create({ // L 대문자 확인
+      data: {
+        title,
+        content,
+        userId,
+        imageUrl,
+        tags: tags || [],
+        status: status || 'draft',
+      },
+      include: {
+        user: true,
+      },
     });
 
-    return NextResponse.json(updated);
+    return NextResponse.json(worklog, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
-  }
-}
-
-// DELETE: 삭제
-export async function DELETE(request: NextRequest, props: Props) {
-  try {
-    const { id } = await props.params;
-    await prisma.workLog.delete({
-      where: { id },
-    });
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
+    console.error('Error creating worklog:', error);
+    return NextResponse.json({ error: 'Failed to create worklog' }, { status: 500 });
   }
 }
